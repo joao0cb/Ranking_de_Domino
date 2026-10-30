@@ -38,7 +38,7 @@ export default async function PeoplePage() {
                   <th className="th text-center">Jogos</th>
                   <th className="th text-center">V</th>
                   <th className="th text-center">D</th>
-                  <th className="th text-center">E</th>
+                  <th className="th text-center">Buchudas</th>
                   <th className="th text-center">% Vitórias</th>
                   <th className="th text-center">Pontos</th>
                   <th className="th text-center">Saldo</th>
@@ -62,7 +62,7 @@ export default async function PeoplePage() {
                     <td className="td text-center tabular-nums">{person.jogos}</td>
                     <td className="td text-center font-semibold tabular-nums text-emerald-700">{person.vitorias}</td>
                     <td className="td text-center tabular-nums">{person.derrotas}</td>
-                    <td className="td text-center tabular-nums">{person.empates}</td>
+                    <td className="td text-center tabular-nums">{person.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(person.aproveitamento)}</td>
                     <td className="td text-center tabular-nums">{person.pontosFeitos}</td>
                     <td className="td text-center tabular-nums">{person.saldo > 0 ? `+${person.saldo}` : person.saldo}</td>
@@ -102,7 +102,8 @@ export default async function PeoplePage() {
       {stats.people.length > 0 ? (
         <p className="text-xs text-slate-400">
           Pontos = pontos marcados pela dupla do jogador. Saldo = pontos marcados menos pontos sofridos.
-          Sequência = vitórias (V) ou derrotas (D) consecutivas na partida mais recente.
+          Buchudas = derrotas de 6 a 0 ou mais. Sequência = vitórias (V) ou derrotas (D) consecutivas na
+          partida mais recente.
         </p>
       ) : null}
     </div>

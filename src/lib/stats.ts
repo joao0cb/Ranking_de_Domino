@@ -17,7 +17,7 @@ export type PersonStats = {
   jogos: number;
   vitorias: number;
   derrotas: number;
-  empates: number;
+  buchudas: number;
   aproveitamento: number;
   pontosFeitos: number;
   pontosSofridos: number;
@@ -36,7 +36,7 @@ export type DuoStats = {
   jogos: number;
   vitorias: number;
   derrotas: number;
-  empates: number;
+  buchudas: number;
   aproveitamento: number;
   pontosFeitos: number;
   pontosSofridos: number;
@@ -48,7 +48,7 @@ export type Totals = {
   partidas: number;
   pessoas: number;
   duplas: number;
-  empates: number;
+  buchudas: number;
   mediaPontosPorPartida: number;
   maiorPlacar: { descricao: string; pontos: number } | null;
   ultimaPartida: string | null;
@@ -113,15 +113,28 @@ export function duoName(names: string[]): string {
 }
 
 /**
+ * Buchuda: derrota por 6 a 0 ou mais (a dupla perdedora zerou e levou 6+).
+ */
+export const BUCHUDA_MINIMO = 6;
+
+export function isBuchuda(score: number, conceded: number): boolean {
+  return score === 0 && conceded >= BUCHUDA_MINIMO;
+}
+
+/**
  * Calcula todos os números a partir das partidas. Os rankings são derivados
  * dos dados, então qualquer partida adicionada/removida atualiza tudo na hora.
+ *
+ * Não existe empate: partidas empatadas não podem ser cadastradas. Se alguma
+ * partida antiga empatada ainda estiver no banco, ela é ignorada aqui nas
+ * estatísticas (o painel administrativo continua listando para poder excluí-la).
  */
-export function buildStats(matches: Match[]): Stats {
-  type PersonAcc = PersonStats & { results: ("V" | "D" | "E")[] };
-  type DuoAcc = DuoStats;
+export function buildStats(allMatches: Match[]): Stats {
+  type PersonAcc = PersonStats & { results: ("V" | "D")[] };
 
+  const matches = allMatches.filter((match) => match.scoreA !== match.scoreB);
   const peopleMap = new Map<string, PersonAcc>();
-  const duoMap = new Map<string, DuoAcc>();
+  const duoMap = new Map<string, DuoStats>();
 
   const personAcc = (player: MatchPlayer): PersonAcc => {
     let acc = peopleMap.get(player.id);
@@ -132,7 +145,7 @@ export function buildStats(matches: Match[]): Stats {
         jogos: 0,
         vitorias: 0,
         derrotas: 0,
-        empates: 0,
+        buchudas: 0,
         aproveitamento: 0,
         pontosFeitos: 0,
         pontosSofridos: 0,
@@ -149,13 +162,10 @@ export function buildStats(matches: Match[]): Stats {
   };
 
   let maiorPlacar: Totals["maiorPlacar"] = null;
-  let empates = 0;
   let totalPontos = 0;
 
   for (const match of matches) {
-    const winner: "A" | "B" | null =
-      match.scoreA > match.scoreB ? "A" : match.scoreB > match.scoreA ? "B" : null;
-    if (!winner) empates += 1;
+    const winner: "A" | "B" = match.scoreA > match.scoreB ? "A" : "B";
     totalPontos += match.scoreA + match.scoreB;
 
     const teams = [
@@ -164,20 +174,21 @@ export function buildStats(matches: Match[]): Stats {
         members: match.teamA,
         score: match.scoreA,
         conceded: match.scoreB,
-        result: winner === "A" ? ("V" as const) : winner === "B" ? ("D" as const) : ("E" as const),
+        result: winner === "A" ? ("V" as const) : ("D" as const),
       },
       {
         team: "B" as const,
         members: match.teamB,
         score: match.scoreB,
         conceded: match.scoreA,
-        result: winner === "B" ? ("V" as const) : winner === "A" ? ("D" as const) : ("E" as const),
+        result: winner === "B" ? ("V" as const) : ("D" as const),
       },
     ];
 
     for (const team of teams) {
       const names = team.members.map((member) => member.name);
       const duoNome = duoName(names);
+      const buchuda = isBuchuda(team.score, team.conceded);
 
       if (!maiorPlacar || team.score > maiorPlacar.pontos) {
         maiorPlacar = { descricao: duoNome, pontos: team.score };
@@ -190,8 +201,8 @@ export function buildStats(matches: Match[]): Stats {
         acc.pontosSofridos += team.conceded;
         acc.results.push(team.result);
         if (team.result === "V") acc.vitorias += 1;
-        else if (team.result === "D") acc.derrotas += 1;
-        else acc.empates += 1;
+        else acc.derrotas += 1;
+        if (buchuda) acc.buchudas += 1;
         if (!acc.ultimaPartida || match.playedAt > acc.ultimaPartida) {
           acc.ultimaPartida = match.playedAt;
         }
@@ -209,7 +220,7 @@ export function buildStats(matches: Match[]): Stats {
           jogos: 0,
           vitorias: 0,
           derrotas: 0,
-          empates: 0,
+          buchudas: 0,
           aproveitamento: 0,
           pontosFeitos: 0,
           pontosSofridos: 0,
@@ -222,8 +233,8 @@ export function buildStats(matches: Match[]): Stats {
       duo.pontosFeitos += team.score;
       duo.pontosSofridos += team.conceded;
       if (team.result === "V") duo.vitorias += 1;
-      else if (team.result === "D") duo.derrotas += 1;
-      else duo.empates += 1;
+      else duo.derrotas += 1;
+      if (buchuda) duo.buchudas += 1;
       if (!duo.ultimaPartida || match.playedAt > duo.ultimaPartida) {
         duo.ultimaPartida = match.playedAt;
       }
@@ -238,16 +249,12 @@ export function buildStats(matches: Match[]): Stats {
     let sequencia = 0;
     const first = acc.results[0];
     if (first) {
-      if (first === "E") {
-        sequencia = 0;
-      } else {
-        let count = 0;
-        for (const result of acc.results) {
-          if (result !== first) break;
-          count += 1;
-        }
-        sequencia = first === "V" ? count : -count;
+      let count = 0;
+      for (const result of acc.results) {
+        if (result !== first) break;
+        count += 1;
       }
+      sequencia = first === "V" ? count : -count;
     }
     acc.sequencia = sequencia;
 
@@ -296,7 +303,7 @@ export function buildStats(matches: Match[]): Stats {
       partidas: matches.length,
       pessoas: people.length,
       duplas: duos.length,
-      empates,
+      buchudas: people.reduce((total, person) => total + person.buchudas, 0),
       mediaPontosPorPartida: matches.length > 0 ? totalPontos / matches.length / 2 : 0,
       maiorPlacar,
       ultimaPartida: matches[0]?.playedAt ?? null,

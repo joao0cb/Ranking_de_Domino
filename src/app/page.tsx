@@ -22,7 +22,7 @@ export default async function RankingPage() {
         <StatCard label="Partidas" value={totals.partidas} />
         <StatCard label="Jogadores" value={totals.pessoas} />
         <StatCard label="Duplas" value={totals.duplas} hint="combinações que já jogaram juntas" />
-        <StatCard label="Empates" value={totals.empates} />
+        <StatCard label="Buchudas" value={totals.buchudas} hint="derrotas de 6 a 0 ou mais" />
         <StatCard
           label="Maior placar"
           value={totals.maiorPlacar ? `${totals.maiorPlacar.pontos} pts` : "—"}
@@ -65,7 +65,7 @@ export default async function RankingPage() {
                   <th className="th text-center">J</th>
                   <th className="th text-center">V</th>
                   <th className="th text-center">D</th>
-                  <th className="th text-center">E</th>
+                  <th className="th text-center">Buchudas</th>
                   <th className="th text-center">% V</th>
                   <th className="th text-center">Saldo</th>
                 </tr>
@@ -84,7 +84,7 @@ export default async function RankingPage() {
                     <td className="td text-center tabular-nums">{person.jogos}</td>
                     <td className="td text-center font-semibold tabular-nums text-emerald-700">{person.vitorias}</td>
                     <td className="td text-center tabular-nums">{person.derrotas}</td>
-                    <td className="td text-center tabular-nums">{person.empates}</td>
+                    <td className="td text-center tabular-nums">{person.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(person.aproveitamento)}</td>
                     <td className="td text-center tabular-nums">{person.saldo > 0 ? `+${person.saldo}` : person.saldo}</td>
                   </tr>
@@ -117,6 +117,7 @@ export default async function RankingPage() {
                   <th className="th text-center">J</th>
                   <th className="th text-center">V</th>
                   <th className="th text-center">D</th>
+                  <th className="th text-center">Buchudas</th>
                   <th className="th text-center">% V</th>
                   <th className="th text-center">Saldo</th>
                 </tr>
@@ -131,6 +132,7 @@ export default async function RankingPage() {
                     <td className="td text-center tabular-nums">{duo.jogos}</td>
                     <td className="td text-center font-semibold tabular-nums text-emerald-700">{duo.vitorias}</td>
                     <td className="td text-center tabular-nums">{duo.derrotas}</td>
+                    <td className="td text-center tabular-nums">{duo.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(duo.aproveitamento)}</td>
                     <td className="td text-center tabular-nums">{duo.saldo > 0 ? `+${duo.saldo}` : duo.saldo}</td>
                   </tr>
@@ -143,9 +145,9 @@ export default async function RankingPage() {
 
       {totals.partidas > 0 ? (
         <p className="text-xs text-slate-400">
-          Desempate: vitórias, aproveitamento, partidas jogadas e saldo de pontos. Empates contam como
-          partida jogada, mas não como vitória. Média de {totals.mediaPontosPorPartida.toFixed(1)} ponto(s)
-          por dupla em cada partida.
+          Desempate: vitórias, aproveitamento, partidas jogadas e saldo de pontos. Não há empate: toda
+          partida tem vencedor. Buchuda é a derrota de 6 a 0 ou mais. Média de{" "}
+          {totals.mediaPontosPorPartida.toFixed(1)} ponto(s) por dupla em cada partida.
         </p>
       ) : null}
     </div>

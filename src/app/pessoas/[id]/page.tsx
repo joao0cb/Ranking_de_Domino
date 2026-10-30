@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EmptyState, StatCard } from "@/components/ui";
 import { formatDateTime, formatPercent } from "@/lib/format";
-import { loadPeople, loadStats, type Match } from "@/lib/stats";
+import { isBuchuda, loadPeople, loadStats, type Match } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,8 @@ type HistoryRow = {
   opponents: string;
   teamScore: number;
   otherScore: number;
-  result: "V" | "D" | "E";
+  result: "V" | "D";
+  buchuda: boolean;
 };
 
 function buildHistory(matches: Match[], personId: string): HistoryRow[] {
@@ -29,8 +30,7 @@ function buildHistory(matches: Match[], personId: string): HistoryRow[] {
     const otherTeam = inA ? match.teamB : match.teamA;
     const teamScore = inA ? match.scoreA : match.scoreB;
     const otherScore = inA ? match.scoreB : match.scoreA;
-    const result: HistoryRow["result"] =
-      teamScore > otherScore ? "V" : teamScore < otherScore ? "D" : "E";
+    const result: HistoryRow["result"] = teamScore > otherScore ? "V" : "D";
 
     rows.push({
       match,
@@ -42,6 +42,7 @@ function buildHistory(matches: Match[], personId: string): HistoryRow[] {
       teamScore,
       otherScore,
       result,
+      buchuda: isBuchuda(teamScore, otherScore),
     });
   }
 
@@ -85,7 +86,11 @@ export default async function PersonPage({ params }: PersonPageProps) {
         <StatCard label="Jogos" value={personStats?.jogos ?? 0} />
         <StatCard label="Vitórias" value={personStats?.vitorias ?? 0} />
         <StatCard label="Derrotas" value={personStats?.derrotas ?? 0} />
-        <StatCard label="Empates" value={personStats?.empates ?? 0} />
+        <StatCard
+          label="Buchudas"
+          value={personStats?.buchudas ?? 0}
+          hint="derrotas de 6 a 0 ou mais"
+        />
         <StatCard
           label="% de vitórias"
           value={formatPercent(personStats?.aproveitamento ?? 0)}
@@ -183,11 +188,10 @@ export default async function PersonPage({ params }: PersonPageProps) {
                     <td className="td text-center">
                       {row.result === "V" ? (
                         <span className="badge-win">Vitória</span>
-                      ) : row.result === "D" ? (
-                        <span className="badge-loss">Derrota</span>
                       ) : (
-                        <span className="badge-draw">Empate</span>
+                        <span className="badge-loss">Derrota</span>
                       )}
+                      {row.buchuda ? <span className="badge-buchuda ml-1">Buchuda</span> : null}
                     </td>
                   </tr>
                 ))}

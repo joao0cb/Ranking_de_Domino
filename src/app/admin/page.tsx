@@ -80,7 +80,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       <section className="card p-5">
         <h2 className="font-semibold text-slate-900">Nova partida</h2>
         <p className="mb-4 text-xs text-slate-500">
-          Escolha as duas duplas e o placar final. As duplas podem variar livremente entre partidas.
+          Escolha as duas duplas e o placar final. As duplas podem variar livremente entre partidas. Não
+          existe empate: os placares precisam ser diferentes. Derrota de 6 a 0 ou mais conta como buchuda.
         </p>
 
         {canCreateMatch ? (

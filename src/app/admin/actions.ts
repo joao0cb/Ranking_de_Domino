@@ -79,6 +79,7 @@ export async function createMatchAction(formData: FormData): Promise<void> {
   const scoreB = Number(text(formData, "scoreB"));
   if (!Number.isInteger(scoreA) || !Number.isInteger(scoreB)) fail("Os placares precisam ser números inteiros.");
   if (scoreA < 0 || scoreB < 0 || scoreA > 999 || scoreB > 999) fail("Os placares devem ficar entre 0 e 999.");
+  if (scoreA === scoreB) fail("Não existe empate: informe placares diferentes para as duas duplas.");
 
   const playedAt = normalizeDateTimeInput(text(formData, "playedAt")) ?? null;
   if (!playedAt) fail("Informe uma data e hora válidas.");

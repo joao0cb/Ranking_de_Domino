@@ -1,14 +1,16 @@
 import { EmptyState } from "@/components/ui";
 import { formatDateTime } from "@/lib/format";
-import { loadMatches, loadPeople } from "@/lib/stats";
+import { isBuchuda, loadMatches, loadPeople } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
 type MatchesPageProps = { searchParams: Promise<{ pessoa?: string }> };
 
 export default async function MatchesPage({ searchParams }: MatchesPageProps) {
-  const [{ pessoa }, matches, people] = await Promise.all([searchParams, loadMatches(), loadPeople()]);
+  const [{ pessoa }, allMatches, people] = await Promise.all([searchParams, loadMatches(), loadPeople()]);
 
+  // Não existe empate: partidas empatadas antigas ficam fora da leitura pública.
+  const matches = allMatches.filter((match) => match.scoreA !== match.scoreB);
   const filtered = pessoa
     ? matches.filter((match) => [...match.teamA, ...match.teamB].some((player) => player.id === pessoa))
     : matches;
@@ -62,13 +64,15 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
         <div className="grid gap-3">
           {filtered.map((match) => {
             const aWon = match.scoreA > match.scoreB;
-            const bWon = match.scoreB > match.scoreA;
+            const bWon = !aWon;
+            const aBuchuda = isBuchuda(match.scoreA, match.scoreB);
+            const bBuchuda = isBuchuda(match.scoreB, match.scoreA);
 
             return (
               <article key={match.id} className="card px-4 py-4">
                 <header className="mb-3 flex items-center justify-between gap-3 text-xs text-slate-500">
                   <span>{formatDateTime(match.playedAt)}</span>
-                  {!aWon && !bWon ? <span className="badge-draw">Empate</span> : null}
+                  {aBuchuda || bBuchuda ? <span className="badge-buchuda">Buchuda</span> : null}
                 </header>
                 <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr]">
                   <div
@@ -79,7 +83,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                     <p className="text-sm font-semibold text-slate-900">
                       {match.teamA.map((player) => player.name).join(" & ")}
                     </p>
-                    <p className="text-xs text-slate-500">{aWon ? "Vitória" : bWon ? "Derrota" : "Empate"}</p>
+                    <p className="text-xs text-slate-500">{aWon ? "Vitória" : "Derrota"}</p>
                   </div>
 
                   <div className="flex items-center justify-center gap-2 text-xl font-bold tabular-nums text-slate-900">
@@ -96,7 +100,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                     <p className="text-sm font-semibold text-slate-900">
                       {match.teamB.map((player) => player.name).join(" & ")}
                     </p>
-                    <p className="text-xs text-slate-500">{bWon ? "Vitória" : aWon ? "Derrota" : "Empate"}</p>
+                    <p className="text-xs text-slate-500">{bWon ? "Vitória" : "Derrota"}</p>
                   </div>
                 </div>
               </article>
