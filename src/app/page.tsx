@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { EmptyState, RankBadge, StatCard } from "@/components/ui";
-import { formatDateTime, formatPercent, formatShortDate } from "@/lib/format";
+import { formatPercent } from "@/lib/format";
 import { loadStats } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
@@ -18,20 +18,14 @@ export default async function RankingPage() {
         </p>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard label="Partidas" value={totals.partidas} />
         <StatCard label="Jogadores" value={totals.pessoas} />
         <StatCard label="Duplas" value={totals.duplas} hint="combinações que já jogaram juntas" />
-        <StatCard label="Buchudas" value={totals.buchudas} hint="derrotas de 6 a 0 ou mais" />
         <StatCard
           label="Maior placar"
           value={totals.maiorPlacar ? `${totals.maiorPlacar.pontos} pts` : "—"}
           hint={totals.maiorPlacar?.descricao}
-        />
-        <StatCard
-          label="Última partida"
-          value={totals.ultimaPartida ? formatShortDate(totals.ultimaPartida) : "—"}
-          hint={totals.ultimaPartida ? formatDateTime(totals.ultimaPartida) : "nenhuma partida ainda"}
         />
       </section>
 
@@ -96,13 +90,8 @@ export default async function RankingPage() {
       </section>
 
       <section className="card overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
-          <div>
-            <h2 className="font-semibold text-slate-900">Ranking de duplas</h2>
-            <p className="text-xs text-slate-500">
-              Cada combinação de dois jogadores, mesmo que joguem com outras pessoas
-            </p>
-          </div>
+        <div className="border-b border-slate-200 px-4 py-3">
+          <h2 className="font-semibold text-slate-900">Ranking de duplas</h2>
         </div>
 
         {duos.length === 0 ? (

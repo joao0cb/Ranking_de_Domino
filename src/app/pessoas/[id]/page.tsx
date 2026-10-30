@@ -130,6 +130,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
                   <th className="th text-center">Jogos</th>
                   <th className="th text-center">V</th>
                   <th className="th text-center">D</th>
+                  <th className="th text-center">Buchudas</th>
                   <th className="th text-center">% Vitórias</th>
                   <th className="th text-center">Saldo</th>
                   <th className="th">Última vez</th>
@@ -142,6 +143,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
                     <td className="td text-center tabular-nums">{duo.jogos}</td>
                     <td className="td text-center font-semibold tabular-nums text-emerald-700">{duo.vitorias}</td>
                     <td className="td text-center tabular-nums">{duo.derrotas}</td>
+                    <td className="td text-center tabular-nums">{duo.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(duo.aproveitamento)}</td>
                     <td className="td text-center tabular-nums">{duo.saldo > 0 ? `+${duo.saldo}` : duo.saldo}</td>
                     <td className="td whitespace-nowrap text-slate-500">
