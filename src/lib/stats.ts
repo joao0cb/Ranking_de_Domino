@@ -19,6 +19,7 @@ export type PersonStats = {
   derrotas: number;
   buchudas: number;
   aproveitamento: number;
+  pontuacao: number;
   pontosFeitos: number;
   pontosSofridos: number;
   saldo: number;
@@ -122,6 +123,17 @@ export function isBuchuda(score: number, conceded: number): boolean {
 }
 
 /**
+ * Pontuação do ranking geral, que combina volume de vitórias e aproveitamento:
+ * (V + 10 × P) / (J + 10) × 100, com P = vitórias / jogos (0 a 1).
+ * É uma média suavizada: quem tem poucos jogos fica perto do aproveitamento
+ * médio até somar partidas suficientes, e o resultado fica entre 0 e 100.
+ */
+export function pontuacaoGeral(vitorias: number, jogos: number): number {
+  if (jogos <= 0) return 0;
+  return ((vitorias + 10 * (vitorias / jogos)) / (jogos + 10)) * 100;
+}
+
+/**
  * Calcula todos os números a partir das partidas. Os rankings são derivados
  * dos dados, então qualquer partida adicionada/removida atualiza tudo na hora.
  *
@@ -147,6 +159,7 @@ export function buildStats(allMatches: Match[]): Stats {
         derrotas: 0,
         buchudas: 0,
         aproveitamento: 0,
+        pontuacao: 0,
         pontosFeitos: 0,
         pontosSofridos: 0,
         saldo: 0,
@@ -243,6 +256,7 @@ export function buildStats(allMatches: Match[]): Stats {
 
   const people: PersonStats[] = [...peopleMap.values()].map((acc) => {
     acc.aproveitamento = acc.jogos > 0 ? (acc.vitorias / acc.jogos) * 100 : 0;
+    acc.pontuacao = pontuacaoGeral(acc.vitorias, acc.jogos);
     acc.saldo = acc.pontosFeitos - acc.pontosSofridos;
     acc.mediaPontos = acc.jogos > 0 ? acc.pontosFeitos / acc.jogos : 0;
 
