@@ -60,7 +60,7 @@ export default async function RankingPage() {
                   <th className="th">Jogador</th>
                   <th className="th text-center">J</th>
                   <th className="th text-center">V</th>
-                  <th className="th text-center">% V</th>
+                  <th className="th text-center">V. buchuda</th>
                   <th className="th text-center">Pontuação</th>
                 </tr>
               </thead>
@@ -77,7 +77,7 @@ export default async function RankingPage() {
                     </td>
                     <td className="td text-center tabular-nums">{person.jogos}</td>
                     <td className="td text-center tabular-nums">{person.vitorias}</td>
-                    <td className="td text-center tabular-nums">{formatPercent(person.aproveitamento)}</td>
+                    <td className="td text-center tabular-nums">{person.vitoriasBuchuda}</td>
                     <td className="td text-center font-semibold tabular-nums text-emerald-700">
                       {person.pontuacao.toFixed(1)}
                     </td>

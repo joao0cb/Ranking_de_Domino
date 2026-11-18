@@ -16,6 +16,8 @@ export type PersonStats = {
   name: string;
   jogos: number;
   vitorias: number;
+  /** vitórias por 6 a 0 ou mais */
+  vitoriasBuchuda: number;
   derrotas: number;
   buchudas: number;
   aproveitamento: number;
@@ -122,15 +124,20 @@ export function isBuchuda(score: number, conceded: number): boolean {
   return score === 0 && conceded >= BUCHUDA_MINIMO;
 }
 
+/** Vitória de buchuda: a dupla venceu por 6 a 0 ou mais. */
+export function isVitoriaBuchuda(score: number, conceded: number): boolean {
+  return conceded === 0 && score >= BUCHUDA_MINIMO;
+}
+
 /**
- * Pontuação do ranking geral, que combina volume de vitórias e aproveitamento:
- * (V + 10 × P) / (J + 10) × 100, com P = vitórias / jogos (0 a 1).
- * É uma média suavizada: quem tem poucos jogos fica perto do aproveitamento
- * médio até somar partidas suficientes, e o resultado fica entre 0 e 100.
+ * Pontuação do ranking geral: R = (Vn + 2·Vb) + ((Vn + 2·Vb) / J) × 10.
+ * Vitória normal vale 1 ponto, vitória de buchuda vale 2, e o desempenho
+ * (pontos por partida) acrescenta até 10 × esse valor como bônus.
  */
-export function pontuacaoGeral(vitorias: number, jogos: number): number {
+export function pontuacaoGeral(vitoriasBuchuda: number, vitorias: number, jogos: number): number {
+  const base = vitorias + vitoriasBuchuda;
   if (jogos <= 0) return 0;
-  return ((vitorias + 10 * (vitorias / jogos)) / (jogos + 10)) * 100;
+  return base + (base / jogos) * 10;
 }
 
 /**
@@ -156,6 +163,7 @@ export function buildStats(allMatches: Match[]): Stats {
         name: player.name,
         jogos: 0,
         vitorias: 0,
+        vitoriasBuchuda: 0,
         derrotas: 0,
         buchudas: 0,
         aproveitamento: 0,
@@ -202,6 +210,7 @@ export function buildStats(allMatches: Match[]): Stats {
       const names = team.members.map((member) => member.name);
       const duoNome = duoName(names);
       const buchuda = isBuchuda(team.score, team.conceded);
+      const venceuDeBuchuda = isVitoriaBuchuda(team.score, team.conceded);
 
       if (!maiorPlacar || team.score > maiorPlacar.pontos) {
         maiorPlacar = { descricao: duoNome, pontos: team.score };
@@ -215,6 +224,7 @@ export function buildStats(allMatches: Match[]): Stats {
         acc.results.push(team.result);
         if (team.result === "V") acc.vitorias += 1;
         else acc.derrotas += 1;
+        if (venceuDeBuchuda) acc.vitoriasBuchuda += 1;
         if (buchuda) acc.buchudas += 1;
         if (!acc.ultimaPartida || match.playedAt > acc.ultimaPartida) {
           acc.ultimaPartida = match.playedAt;
@@ -256,7 +266,7 @@ export function buildStats(allMatches: Match[]): Stats {
 
   const people: PersonStats[] = [...peopleMap.values()].map((acc) => {
     acc.aproveitamento = acc.jogos > 0 ? (acc.vitorias / acc.jogos) * 100 : 0;
-    acc.pontuacao = pontuacaoGeral(acc.vitorias, acc.jogos);
+    acc.pontuacao = pontuacaoGeral(acc.vitoriasBuchuda, acc.vitorias, acc.jogos);
     acc.saldo = acc.pontosFeitos - acc.pontosSofridos;
     acc.mediaPontos = acc.jogos > 0 ? acc.pontosFeitos / acc.jogos : 0;
 
