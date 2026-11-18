@@ -31,6 +31,30 @@ export type PersonStats = {
   melhorDupla: { nome: string; vitorias: number; jogos: number } | null;
 };
 
+export const ELO_INICIAL = 1000;
+export const ELO_K = 32;
+export const ELO_BONUS_BUCHUDA = 4;
+export const PARTIDAS_OFICIAL = 10;
+export const PARTIDAS_PROVISORIO = 5;
+
+export type EloSituacao = "nao-classificado" | "provisorio" | "oficial";
+
+export type EloPlayer = {
+  id: string;
+  name: string;
+  elo: number;
+  jogos: number;
+  vitorias: number;
+  derrotas: number;
+  aproveitamento: number;
+  buchudasFeitas: number;
+  buchudasSofridas: number;
+  taxaBuchuda: number;
+  situacao: EloSituacao;
+  /** Posição no ranking oficial; nula para provisórios e não classificados. */
+  posicao: number | null;
+};
+
 export type DuoStats = {
   key: string;
   nome: string;
@@ -60,6 +84,7 @@ export type Totals = {
 export type Stats = {
   matches: Match[];
   people: PersonStats[];
+  elo: EloPlayer[];
   duos: DuoStats[];
   totals: Totals;
   byPersonId: Map<string, PersonStats>;
@@ -127,6 +152,173 @@ export function isBuchuda(score: number, conceded: number): boolean {
 /** Vitória de buchuda: a dupla venceu por 6 a 0 ou mais. */
 export function isVitoriaBuchuda(score: number, conceded: number): boolean {
   return conceded === 0 && score >= BUCHUDA_MINIMO;
+}
+
+/**
+ * Buchuda do ranking Elo: uma dupla zerou e a outra marcou pelo menos um ponto,
+ * sem placar máximo fixo (6 x 0, 8 x 0, 10 x 0...).
+ */
+export function isBuchudaElo(score: number, conceded: number): boolean {
+  return (score === 0 && conceded > 0) || (conceded === 0 && score > 0);
+}
+
+export function eloSituacao(jogos: number): EloSituacao {
+  if (jogos >= PARTIDAS_OFICIAL) return "oficial";
+  if (jogos >= PARTIDAS_PROVISORIO) return "provisorio";
+  return "nao-classificado";
+}
+
+/**
+ * Ranking Elo individual. Recalcula o histórico cronológico do zero: cada
+ * partida usa o Elo dos quatro participantes antes dela, e o incremento é
+ * aplicado só depois de calcular as duas duplas. Assim, editar ou excluir uma
+ * partida antiga reconstrói automaticamente todas as pontuações seguintes.
+ */
+export function buildEloRanking(allMatches: Match[]): EloPlayer[] {
+  type EloAcc = {
+    id: string;
+    name: string;
+    elo: number;
+    jogos: number;
+    vitorias: number;
+    derrotas: number;
+    buchudasFeitas: number;
+    buchudasSofridas: number;
+    confrontos: Map<string, number>;
+  };
+
+  const accs = new Map<string, EloAcc>();
+
+  const accOf = (player: MatchPlayer): EloAcc => {
+    let acc = accs.get(player.id);
+    if (!acc) {
+      acc = {
+        id: player.id,
+        name: player.name,
+        elo: ELO_INICIAL,
+        jogos: 0,
+        vitorias: 0,
+        derrotas: 0,
+        buchudasFeitas: 0,
+        buchudasSofridas: 0,
+        confrontos: new Map(),
+      };
+      accs.set(player.id, acc);
+    }
+    return acc;
+  };
+
+  const matches = allMatches
+    .filter((match) => match.scoreA !== match.scoreB)
+    .slice()
+    .sort((a, b) => (a.playedAt < b.playedAt ? -1 : a.playedAt > b.playedAt ? 1 : 0));
+
+  for (const match of matches) {
+    const teamA = match.teamA.map(accOf);
+    const teamB = match.teamB.map(accOf);
+    if (teamA.length === 0 || teamB.length === 0) continue;
+
+    const mediaA = teamA.reduce((total, player) => total + player.elo, 0) / teamA.length;
+    const mediaB = teamB.reduce((total, player) => total + player.elo, 0) / teamB.length;
+    const esperadoA = 1 / (1 + 10 ** ((mediaB - mediaA) / 400));
+    const esperadoB = 1 - esperadoA;
+
+    const venceuA = match.scoreA > match.scoreB;
+    const buchuda = isBuchudaElo(match.scoreA, match.scoreB);
+
+    const variacaoA = ELO_K * ((venceuA ? 1 : 0) - esperadoA) + (buchuda ? (venceuA ? ELO_BONUS_BUCHUDA : -ELO_BONUS_BUCHUDA) : 0);
+    const variacaoB = ELO_K * ((venceuA ? 0 : 1) - esperadoB) + (buchuda ? (venceuA ? -ELO_BONUS_BUCHUDA : ELO_BONUS_BUCHUDA) : 0);
+
+    const vencedores = venceuA ? teamA : teamB;
+    const perdedores = venceuA ? teamB : teamA;
+
+    for (const player of teamA) {
+      player.elo += variacaoA;
+      player.jogos += 1;
+      if (venceuA) player.vitorias += 1;
+      else player.derrotas += 1;
+      if (buchuda) {
+        if (venceuA) player.buchudasFeitas += 1;
+        else player.buchudasSofridas += 1;
+      }
+    }
+
+    for (const player of teamB) {
+      player.elo += variacaoB;
+      player.jogos += 1;
+      if (venceuA) player.derrotas += 1;
+      else player.vitorias += 1;
+      if (buchuda) {
+        if (venceuA) player.buchudasSofridas += 1;
+        else player.buchudasFeitas += 1;
+      }
+    }
+
+    for (const vencedor of vencedores) {
+      for (const perdedor of perdedores) {
+        vencedor.confrontos.set(perdedor.id, (vencedor.confrontos.get(perdedor.id) ?? 0) + 1);
+      }
+    }
+  }
+
+  const people: EloPlayer[] = [...accs.values()].map((acc) => ({
+    id: acc.id,
+    name: acc.name,
+    elo: acc.elo,
+    jogos: acc.jogos,
+    vitorias: acc.vitorias,
+    derrotas: acc.derrotas,
+    aproveitamento: acc.jogos > 0 ? (acc.vitorias / acc.jogos) * 100 : 0,
+    buchudasFeitas: acc.buchudasFeitas,
+    buchudasSofridas: acc.buchudasSofridas,
+    taxaBuchuda: acc.jogos > 0 ? (acc.buchudasFeitas / acc.jogos) * 100 : 0,
+    situacao: eloSituacao(acc.jogos),
+    posicao: null,
+  }));
+
+  const confrontoDireto = (a: EloPlayer, b: EloPlayer): number =>
+    (accs.get(a.id)?.confrontos.get(b.id) ?? 0) - (accs.get(b.id)?.confrontos.get(a.id) ?? 0);
+
+  const mesmoEmpate = (a: EloPlayer, b: EloPlayer): boolean =>
+    a.elo === b.elo && a.vitorias === b.vitorias && a.aproveitamento === b.aproveitamento;
+
+  people.sort(
+    (a, b) =>
+      b.elo - a.elo ||
+      b.vitorias - a.vitorias ||
+      b.aproveitamento - a.aproveitamento ||
+      a.name.localeCompare(b.name, "pt-BR"),
+  );
+
+  // Dentro de cada grupo empatado em Elo/vitórias/aproveitamento, o confronto
+  // direto decide. Se continuar igual, a posição é compartilhada.
+  for (let start = 0; start < people.length; ) {
+    let end = start + 1;
+    while (end < people.length && mesmoEmpate(people[start], people[end])) end += 1;
+    if (end - start > 1) {
+      const grupo = people.slice(start, end);
+      grupo.sort(
+        (a, b) => confrontoDireto(b, a) - confrontoDireto(a, b) || a.name.localeCompare(b.name, "pt-BR"),
+      );
+      people.splice(start, end - start, ...grupo);
+    }
+    start = end;
+  }
+
+  let posicao = 0;
+  let anterior: EloPlayer | null = null;
+  let posicaoAnterior = 0;
+  for (const player of people) {
+    if (player.situacao !== "oficial") continue;
+    posicao += 1;
+    const empataComAnterior =
+      anterior !== null && mesmoEmpate(anterior, player) && confrontoDireto(anterior, player) === 0;
+    player.posicao = empataComAnterior ? posicaoAnterior : posicao;
+    posicaoAnterior = player.posicao;
+    anterior = player;
+  }
+
+  return people;
 }
 
 /**
@@ -322,6 +514,7 @@ export function buildStats(allMatches: Match[]): Stats {
   return {
     matches,
     people,
+    elo: buildEloRanking(matches),
     duos,
     totals: {
       partidas: matches.length,
