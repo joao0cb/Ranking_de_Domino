@@ -24,14 +24,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <div className="mx-auto max-w-md space-y-4 py-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Acesso restrito</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-[#10231c]">Acesso restrito</h1>
+        <p className="mt-1 text-sm text-[#6b7a6d]">
           Área administrativa para cadastrar pessoas, partidas e contas.
         </p>
       </div>
 
       {erro ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{erro}</p>
+        <p className="rounded-lg border border-[#b04a34]/25 bg-[#b04a34]/8 px-3 py-2 text-sm text-[#9c3f2c]">{erro}</p>
       ) : null}
 
       <form action={loginAction} className="card space-y-4 p-5">
@@ -60,15 +60,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </form>
 
       {admins === 0 ? (
-        <p className="text-center text-xs text-slate-500">
+        <p className="text-center text-xs text-[#6b7a6d]">
           Nenhuma conta cadastrada ainda.{" "}
-          <Link href="/acesso/primeiro-acesso" className="font-semibold text-emerald-700 hover:underline">
+          <Link href="/acesso/primeiro-acesso" className="font-semibold text-[#0f5b43] hover:underline">
             Criar a primeira conta
           </Link>
         </p>
       ) : null}
 
-      <p className="text-center text-xs text-slate-400">
+      <p className="text-center text-xs text-[#8d9a8c]">
         <Link href="/" className="hover:underline">
           Voltar para os rankings
         </Link>

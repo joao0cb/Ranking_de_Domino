@@ -20,8 +20,8 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
     <div className="space-y-6">
       <section className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Partidas</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-[#10231c]">Partidas</h1>
+          <p className="mt-1 text-sm text-[#6b7a6d]">
             {selectedPerson
               ? `Partidas de ${selectedPerson.name} · ${filtered.length} registro(s)`
               : `${matches.length} partida(s) registrada(s)`}
@@ -47,7 +47,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
               Filtrar
             </button>
             {pessoa ? (
-              <a href="/partidas" className="px-2 py-2 text-xs font-semibold text-slate-500 hover:underline">
+              <a href="/partidas" className="px-2 py-2 text-xs font-semibold text-[#6b7a6d] hover:underline">
                 Limpar
               </a>
             ) : null}
@@ -70,37 +70,37 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
 
             return (
               <article key={match.id} className="card px-4 py-4">
-                <header className="mb-3 flex items-center justify-between gap-3 text-xs text-slate-500">
+                <header className="mb-3 flex items-center justify-between gap-3 text-xs text-[#6b7a6d]">
                   <span>{formatDateTime(match.playedAt)}</span>
                   {aBuchuda || bBuchuda ? <span className="badge-buchuda">Buchuda</span> : null}
                 </header>
                 <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr]">
                   <div
                     className={`rounded-xl px-3 py-2 ${
-                      aWon ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-slate-50"
+                      aWon ? "bg-[#0f5b43]/8 ring-1 ring-[#0f5b43]/20" : "bg-[#f7f2e4]"
                     }`}
                   >
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-[#10231c]">
                       {match.teamA.map((player) => player.name).join(" & ")}
                     </p>
-                    <p className="text-xs text-slate-500">{aWon ? "Vitória" : "Derrota"}</p>
+                    <p className="text-xs text-[#6b7a6d]">{aWon ? "Vitória" : "Derrota"}</p>
                   </div>
 
-                  <div className="flex items-center justify-center gap-2 text-xl font-bold tabular-nums text-slate-900">
-                    <span className={aWon ? "text-emerald-700" : ""}>{match.scoreA}</span>
-                    <span className="text-sm text-slate-400">×</span>
-                    <span className={bWon ? "text-emerald-700" : ""}>{match.scoreB}</span>
+                  <div className="flex items-center justify-center gap-2 text-xl font-bold tabular-nums text-[#10231c]">
+                    <span className={aWon ? "text-[#0f5b43]" : ""}>{match.scoreA}</span>
+                    <span className="text-sm text-[#8d9a8c]">×</span>
+                    <span className={bWon ? "text-[#0f5b43]" : ""}>{match.scoreB}</span>
                   </div>
 
                   <div
                     className={`rounded-xl px-3 py-2 sm:text-right ${
-                      bWon ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-slate-50"
+                      bWon ? "bg-[#0f5b43]/8 ring-1 ring-[#0f5b43]/20" : "bg-[#f7f2e4]"
                     }`}
                   >
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-[#10231c]">
                       {match.teamB.map((player) => player.name).join(" & ")}
                     </p>
-                    <p className="text-xs text-slate-500">{bWon ? "Vitória" : "Derrota"}</p>
+                    <p className="text-xs text-[#6b7a6d]">{bWon ? "Vitória" : "Derrota"}</p>
                   </div>
                 </div>
               </article>

@@ -21,18 +21,18 @@ export default async function FirstAccessPage({ searchParams }: FirstAccessPageP
   return (
     <div className="mx-auto max-w-md space-y-4 py-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Criar a primeira conta</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-[#10231c]">Criar a primeira conta</h1>
+        <p className="mt-1 text-sm text-[#6b7a6d]">
           Esta página só funciona enquanto não existir nenhuma conta administrativa.
         </p>
       </div>
 
       {erro ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{erro}</p>
+        <p className="rounded-lg border border-[#b04a34]/25 bg-[#b04a34]/8 px-3 py-2 text-sm text-[#9c3f2c]">{erro}</p>
       ) : null}
 
       {admins > 0 && !session ? (
-        <div className="card space-y-3 p-5 text-sm text-slate-600">
+        <div className="card space-y-3 p-5 text-sm text-[#4d5f52]">
           <p>
             Já existe {admins === 1 ? "uma conta cadastrada" : `${admins} contas cadastradas`}. O cadastro
             inicial está encerrado.
@@ -83,7 +83,7 @@ export default async function FirstAccessPage({ searchParams }: FirstAccessPageP
         </form>
       )}
 
-      <p className="text-center text-xs text-slate-400">
+      <p className="text-center text-xs text-[#8d9a8c]">
         <Link href="/acesso" className="hover:underline">
           Já tenho uma conta
         </Link>

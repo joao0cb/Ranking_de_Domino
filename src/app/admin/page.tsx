@@ -47,11 +47,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     <div className="space-y-6">
       <section className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Painel administrativo</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Logado como <span className="font-semibold text-slate-700">{session.username}</span>. Esta página
-            fica em <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">/admin</code> e o login em{" "}
-            <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">/acesso</code>.
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-[#10231c]">Painel administrativo</h1>
+          <p className="mt-1 text-sm text-[#6b7a6d]">
+            Logado como <span className="font-semibold text-[#33492f]">{session.username}</span>. Esta página
+            fica em <code className="rounded bg-[#f0ebda] px-1 py-0.5 text-xs">/admin</code> e o login em{" "}
+            <code className="rounded bg-[#f0ebda] px-1 py-0.5 text-xs">/acesso</code>.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -67,19 +67,19 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       </section>
 
       {ok ? (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
+        <p className="rounded-lg border border-[#0f5b43]/25 bg-[#0f5b43]/8 px-3 py-2 text-sm font-medium text-[#0c5641]">
           {ok}
         </p>
       ) : null}
       {erro ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
+        <p className="rounded-lg border border-[#b04a34]/25 bg-[#b04a34]/8 px-3 py-2 text-sm font-medium text-[#9c3f2c]">
           {erro}
         </p>
       ) : null}
 
       <section className="card p-5">
-        <h2 className="font-semibold text-slate-900">Nova partida</h2>
-        <p className="mb-4 text-xs text-slate-500">
+        <h2 className="font-display text-lg font-semibold tracking-tight text-[#10231c]">Nova partida</h2>
+        <p className="mb-4 text-xs text-[#6b7a6d]">
           Escolha as duas duplas e o placar final. As duplas podem variar livremente entre partidas. Não
           existe empate: os placares precisam ser diferentes. Derrota de 6 a 0 ou mais conta como buchuda.
         </p>
@@ -87,8 +87,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         {canCreateMatch ? (
           <form action={createMatchAction} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <fieldset className="rounded-xl border border-slate-200 p-3">
-                <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+              <fieldset className="rounded-xl border border-[#eee7d6] p-3">
+                <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-[#0f5b43]">
                   Dupla 1
                 </legend>
                 <div className="grid gap-2">
@@ -130,8 +130,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </div>
               </fieldset>
 
-              <fieldset className="rounded-xl border border-slate-200 p-3">
-                <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-sky-700">
+              <fieldset className="rounded-xl border border-[#eee7d6] p-3">
+                <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-[#8a6216]">
                   Dupla 2
                 </legend>
                 <div className="grid gap-2">
@@ -194,19 +194,19 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </div>
           </form>
         ) : (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <p className="rounded-lg border border-[#c9922f]/30 bg-[#c9922f]/10 px-3 py-2 text-sm text-[#7a5410]">
             Cadastre pelo menos 4 pessoas para poder registrar uma partida.
           </p>
         )}
       </section>
 
       <section className="card overflow-hidden">
-        <div className="border-b border-slate-200 px-5 py-3">
-          <h2 className="font-semibold text-slate-900">Pessoas ({people.length})</h2>
-          <p className="text-xs text-slate-500">Apenas o nome é necessário; o id único é gerado automaticamente.</p>
+        <div className="border-b border-[#eee7d6] px-5 py-3">
+          <h2 className="font-display text-lg font-semibold tracking-tight text-[#10231c]">Pessoas ({people.length})</h2>
+          <p className="text-xs text-[#6b7a6d]">Apenas o nome é necessário; o id único é gerado automaticamente.</p>
         </div>
 
-        <form action={createPersonAction} className="flex flex-wrap items-end gap-3 border-b border-slate-100 px-5 py-4">
+        <form action={createPersonAction} className="flex flex-wrap items-end gap-3 border-b border-[#eee7d6] px-5 py-4">
           <div className="min-w-56 flex-1">
             <label className="label" htmlFor="name">
               Nome da pessoa
@@ -227,16 +227,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </form>
 
         {people.length === 0 ? (
-          <p className="px-5 py-6 text-center text-sm text-slate-500">Nenhuma pessoa cadastrada ainda.</p>
+          <p className="px-5 py-6 text-center text-sm text-[#6b7a6d]">Nenhuma pessoa cadastrada ainda.</p>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-[#eee7d6]">
             {people.map((person) => {
               const count = matchCountByPerson.get(person.id) ?? 0;
               return (
                 <li key={person.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
                   <div>
-                    <p className="text-sm font-medium text-slate-900">{person.name}</p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-sm font-medium text-[#10231c]">{person.name}</p>
+                    <p className="text-xs text-[#8d9a8c]">
                       {count === 0 ? "sem partidas" : `${count} partida(s)`} · id {person.id.slice(0, 8)}
                     </p>
                   </div>
@@ -252,9 +252,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       </section>
 
       <section className="card overflow-hidden">
-        <div className="border-b border-slate-200 px-5 py-3">
-          <h2 className="font-semibold text-slate-900">Partidas ({matches.length})</h2>
-          <p className="text-xs text-slate-500">Excluir uma partida recalcula todos os rankings na hora.</p>
+        <div className="border-b border-[#eee7d6] px-5 py-3">
+          <h2 className="font-display text-lg font-semibold tracking-tight text-[#10231c]">Partidas ({matches.length})</h2>
+          <p className="text-xs text-[#6b7a6d]">Excluir uma partida recalcula todos os rankings na hora.</p>
         </div>
 
         {matches.length === 0 ? (
@@ -262,18 +262,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <EmptyState title="Nenhuma partida registrada" />
           </div>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-[#eee7d6]">
             {matches.map((match) => (
               <li key={match.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-slate-900">
+                  <p className="text-sm text-[#10231c]">
                     <span className="font-semibold">{match.teamA.map((p) => p.name).join(" & ")}</span>
                     <span className="mx-2 font-bold tabular-nums">
                       {match.scoreA} × {match.scoreB}
                     </span>
                     <span className="font-semibold">{match.teamB.map((p) => p.name).join(" & ")}</span>
                   </p>
-                  <p className="text-xs text-slate-400">{formatDateTime(match.playedAt)}</p>
+                  <p className="text-xs text-[#8d9a8c]">{formatDateTime(match.playedAt)}</p>
                 </div>
                 <form action={deleteMatchAction}>
                   <input type="hidden" name="id" value={match.id} />
@@ -290,14 +290,14 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       </section>
 
       <section className="card overflow-hidden">
-        <div className="border-b border-slate-200 px-5 py-3">
-          <h2 className="font-semibold text-slate-900">Contas de acesso ({accounts.length})</h2>
-          <p className="text-xs text-slate-500">
+        <div className="border-b border-[#eee7d6] px-5 py-3">
+          <h2 className="font-display text-lg font-semibold tracking-tight text-[#10231c]">Contas de acesso ({accounts.length})</h2>
+          <p className="text-xs text-[#6b7a6d]">
             Só quem tem conta consegue cadastrar ou excluir pessoas e partidas. O público continua só lendo.
           </p>
         </div>
 
-        <form action={createAccountAction} className="grid gap-3 border-b border-slate-100 px-5 py-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+        <form action={createAccountAction} className="grid gap-3 border-b border-[#eee7d6] px-5 py-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <div>
             <label className="label" htmlFor="new-username">
               Novo usuário
@@ -323,19 +323,19 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </button>
         </form>
 
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-[#eee7d6]">
           {accounts.map((account) => (
             <li key={account.id} className="flex items-center justify-between gap-3 px-5 py-3">
               <div>
-                <p className="text-sm font-medium text-slate-900">
+                <p className="text-sm font-medium text-[#10231c]">
                   {account.username}
                   {account.id === session.userId ? (
-                    <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                    <span className="ml-2 rounded-full bg-[#f0ebda] px-2 py-0.5 text-[11px] font-semibold text-[#6b7a6d]">
                       você
                     </span>
                   ) : null}
                 </p>
-                <p className="text-xs text-slate-400">criada em {formatDateTime(account.created_at)}</p>
+                <p className="text-xs text-[#8d9a8c]">criada em {formatDateTime(account.created_at)}</p>
               </div>
               {account.id === session.userId ? null : (
                 <form action={deleteAccountAction}>
@@ -347,7 +347,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           ))}
         </ul>
 
-        <form action={changePasswordAction} className="grid gap-3 border-t border-slate-200 bg-slate-50/60 px-5 py-4 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
+        <form action={changePasswordAction} className="grid gap-3 border-t border-[#eee7d6] bg-[#f7f2e4]/60 px-5 py-4 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
           <div>
             <label className="label" htmlFor="current">
               Senha atual

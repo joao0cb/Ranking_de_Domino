@@ -67,11 +67,11 @@ export default async function PersonPage({ params }: PersonPageProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Link href="/pessoas" className="text-xs font-semibold text-emerald-700 hover:underline">
+          <Link href="/pessoas" className="text-xs font-semibold text-[#0f5b43] hover:underline">
             ← Pessoas
           </Link>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{person.name}</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight text-[#10231c]">{person.name}</h1>
+          <p className="text-sm text-[#6b7a6d]">
             {personStats ? `${numero}º no ranking de pessoas` : "Ainda sem partidas registradas"}
           </p>
         </div>
@@ -115,16 +115,16 @@ export default async function PersonPage({ params }: PersonPageProps) {
       </section>
 
       <section className="card overflow-hidden">
-        <div className="border-b border-slate-200 px-4 py-3">
-          <h2 className="font-semibold text-slate-900">Duplas</h2>
-          <p className="text-xs text-slate-500">Desempenho com cada parceiro</p>
+        <div className="border-b border-[#eee7d6] px-4 py-3">
+          <h2 className="font-semibold text-[#10231c]">Duplas</h2>
+          <p className="text-xs text-[#6b7a6d]">Desempenho com cada parceiro</p>
         </div>
         {duos.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-slate-500">Nenhuma dupla formada ainda.</p>
+          <p className="px-4 py-8 text-center text-sm text-[#6b7a6d]">Nenhuma dupla formada ainda.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px]">
-              <thead className="bg-slate-50">
+              <thead className="thead">
                 <tr>
                   <th className="th">Dupla</th>
                   <th className="th text-center">Jogos</th>
@@ -136,17 +136,17 @@ export default async function PersonPage({ params }: PersonPageProps) {
                   <th className="th">Última vez</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#eee7d6]">
                 {duos.map((duo) => (
                   <tr key={duo.key}>
-                    <td className="td font-medium text-slate-900">{duo.nome}</td>
+                    <td className="td font-medium text-[#10231c]">{duo.nome}</td>
                     <td className="td text-center tabular-nums">{duo.jogos}</td>
-                    <td className="td text-center font-semibold tabular-nums text-emerald-700">{duo.vitorias}</td>
+                    <td className="td text-center font-semibold tabular-nums text-[#0f5b43]">{duo.vitorias}</td>
                     <td className="td text-center tabular-nums">{duo.derrotas}</td>
                     <td className="td text-center tabular-nums">{duo.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(duo.aproveitamento)}</td>
                     <td className="td text-center tabular-nums">{duo.saldo > 0 ? `+${duo.saldo}` : duo.saldo}</td>
-                    <td className="td whitespace-nowrap text-slate-500">
+                    <td className="td whitespace-nowrap text-[#6b7a6d]">
                       {duo.ultimaPartida ? formatDateTime(duo.ultimaPartida) : "—"}
                     </td>
                   </tr>
@@ -158,9 +158,9 @@ export default async function PersonPage({ params }: PersonPageProps) {
       </section>
 
       <section className="card overflow-hidden">
-        <div className="border-b border-slate-200 px-4 py-3">
-          <h2 className="font-semibold text-slate-900">Partidas</h2>
-          <p className="text-xs text-slate-500">Da mais recente para a mais antiga</p>
+        <div className="border-b border-[#eee7d6] px-4 py-3">
+          <h2 className="font-semibold text-[#10231c]">Partidas</h2>
+          <p className="text-xs text-[#6b7a6d]">Da mais recente para a mais antiga</p>
         </div>
         {history.length === 0 ? (
           <div className="px-4 py-8">
@@ -169,7 +169,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px]">
-              <thead className="bg-slate-50">
+              <thead className="thead">
                 <tr>
                   <th className="th">Data</th>
                   <th className="th">Parceiro</th>
@@ -178,13 +178,13 @@ export default async function PersonPage({ params }: PersonPageProps) {
                   <th className="th text-center">Resultado</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#eee7d6]">
                 {history.map((row) => (
                   <tr key={row.match.id}>
-                    <td className="td whitespace-nowrap text-slate-500">{formatDateTime(row.match.playedAt)}</td>
-                    <td className="td text-slate-800">{row.partner}</td>
-                    <td className="td text-slate-600">{row.opponents}</td>
-                    <td className="td text-center font-semibold tabular-nums text-slate-900">
+                    <td className="td whitespace-nowrap text-[#6b7a6d]">{formatDateTime(row.match.playedAt)}</td>
+                    <td className="td text-[#243b31]">{row.partner}</td>
+                    <td className="td text-[#4d5f52]">{row.opponents}</td>
+                    <td className="td text-center font-semibold tabular-nums text-[#10231c]">
                       {row.teamScore} × {row.otherScore}
                     </td>
                     <td className="td text-center">

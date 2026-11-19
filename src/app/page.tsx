@@ -1,29 +1,116 @@
 import Link from "next/link";
-import { EmptyState, RankBadge, StatCard } from "@/components/ui";
+import { RankBadge } from "@/components/ui";
 import { formatPercent } from "@/lib/format";
 import { loadStats, type EloPlayer, type EloSituacao } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
-const SITUACAO_LABEL: Record<EloSituacao, string> = {
-  oficial: "Oficial",
-  provisorio: "Provisório",
-  "nao-classificado": "Não classificado",
+const SITUACAO: Record<EloSituacao, { label: string; classes: string }> = {
+  oficial: {
+    label: "Oficial",
+    classes: "bg-[#0f5b43]/10 text-[#0c5641] ring-1 ring-[#0f5b43]/20",
+  },
+  provisorio: {
+    label: "Provisório",
+    classes: "bg-[#c9922f]/15 text-[#8a6216] ring-1 ring-[#c9922f]/30",
+  },
+  "nao-classificado": {
+    label: "Não classificado",
+    classes: "bg-[#10231c]/5 text-[#6b7a6d] ring-1 ring-[#10231c]/10",
+  },
 };
 
-const SITUACAO_CLASSES: Record<EloSituacao, string> = {
-  oficial: "bg-emerald-50 text-emerald-700",
-  provisorio: "bg-amber-50 text-amber-700",
-  "nao-classificado": "bg-slate-100 text-slate-500",
-};
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+function Chip({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-2xl border border-[#f7f2e4]/15 bg-[#f7f2e4]/5 px-4 py-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c8c2ad]">{label}</p>
+      <p className="font-display mt-0.5 text-lg font-semibold text-[#faf6ea]">{value}</p>
+    </div>
+  );
+}
+
+function PodiumCard({ player, index }: { player: EloPlayer; index: number }) {
+  const accents = [
+    {
+      ring: "ring-[#c9922f]/45",
+      glow: "from-[#c9922f]/18",
+      avatar: "bg-[#f7e5b8] text-[#7a5410]",
+      place: "1º lugar",
+    },
+    {
+      ring: "ring-[#9aa5ad]/40",
+      glow: "from-[#9aa5ad]/18",
+      avatar: "bg-[#eef1f3] text-[#4b5563]",
+      place: "2º lugar",
+    },
+    {
+      ring: "ring-[#c8834a]/40",
+      glow: "from-[#c8834a]/18",
+      avatar: "bg-[#f8e3d1] text-[#8a4d1e]",
+      place: "3º lugar",
+    },
+  ];
+  const accent = accents[Math.min(index, 2)];
+
+  return (
+    <Link
+      href={`/pessoas/${player.id}`}
+      className={`group relative overflow-hidden rounded-2xl bg-[#fffdf7] p-5 ring-1 ${accent.ring} transition hover:-translate-y-0.5 hover:shadow-lg`}
+    >
+      <div
+        className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${accent.glow} to-transparent`}
+        aria-hidden
+      />
+      <div className="relative flex items-start justify-between gap-3">
+        <span
+          className={`font-display grid size-11 place-items-center rounded-full text-sm font-bold ${accent.avatar}`}
+        >
+          {initials(player.name)}
+        </span>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8d9a8c]">
+          {`${player.posicao}º lugar`}
+        </span>
+      </div>
+      <p className="font-display relative mt-3 truncate text-lg font-semibold text-[#10231c] group-hover:text-[#0f5b43]">
+        {player.name}
+      </p>
+      <p className="font-display relative mt-1 text-3xl font-semibold tabular-nums text-[#0f5b43]">
+        {Math.round(player.elo)}
+        <span className="ml-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#8d9a8c]">
+          elo
+        </span>
+      </p>
+      <div className="relative mt-3 flex gap-4 text-xs text-[#6b7a6d]">
+        <span>
+          <strong className="font-semibold text-[#16322a]">{player.vitorias}</strong> V
+        </span>
+        <span>
+          <strong className="font-semibold text-[#16322a]">{player.jogos}</strong> J
+        </span>
+        <span>
+          <strong className="font-semibold text-[#16322a]">{player.buchudasFeitas}</strong> buch.
+        </span>
+      </div>
+    </Link>
+  );
+}
 
 function EloTable({ players }: { players: EloPlayer[] }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[760px]">
-        <thead className="bg-slate-50">
+      <table className="w-full min-w-[820px]">
+        <thead className="thead">
           <tr>
-            <th className="th w-12">#</th>
+            <th className="th w-14">#</th>
             <th className="th">Jogador</th>
             <th className="th text-center">Elo</th>
             <th className="th text-center">J</th>
@@ -35,18 +122,22 @@ function EloTable({ players }: { players: EloPlayer[] }) {
             <th className="th text-center">Situação</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-[#eee7d6]">
           {players.map((player) => (
-            <tr key={player.id} className="transition hover:bg-slate-50/70">
+            <tr key={player.id} className="transition hover:bg-[#f7f2e4]">
               <td className="td">
-                {player.posicao ? <RankBadge position={player.posicao} /> : <span className="text-slate-400">—</span>}
+                {player.posicao ? (
+                  <RankBadge position={player.posicao} />
+                ) : (
+                  <span className="text-[#b3bdb0]">—</span>
+                )}
               </td>
-              <td className="td font-medium text-slate-900">
-                <Link href={`/pessoas/${player.id}`} className="hover:text-emerald-700 hover:underline">
+              <td className="td font-medium whitespace-nowrap text-[#10231c]">
+                <Link href={`/pessoas/${player.id}`} className="hover:text-[#0f5b43] hover:underline">
                   {player.name}
                 </Link>
               </td>
-              <td className="td text-center font-semibold tabular-nums text-emerald-700">
+              <td className="td text-center font-display text-base font-semibold tabular-nums text-[#0f5b43]">
                 {Math.round(player.elo)}
               </td>
               <td className="td text-center tabular-nums">{player.jogos}</td>
@@ -57,9 +148,9 @@ function EloTable({ players }: { players: EloPlayer[] }) {
               <td className="td text-center tabular-nums">{player.buchudasSofridas}</td>
               <td className="td text-center">
                 <span
-                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${SITUACAO_CLASSES[player.situacao]}`}
+                  className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${SITUACAO[player.situacao].classes}`}
                 >
-                  {SITUACAO_LABEL[player.situacao]}
+                  {SITUACAO[player.situacao].label}
                 </span>
               </td>
             </tr>
@@ -70,202 +161,114 @@ function EloTable({ players }: { players: EloPlayer[] }) {
   );
 }
 
-export default async function RankingPage() {
+export default async function EloRankingPage() {
   const stats = await loadStats();
-  const { people, elo, duos, totals } = stats;
+  const { elo, duos, totals } = stats;
 
-  const eloOficiais = elo.filter((player) => player.situacao === "oficial");
-  const eloForaDoRanking = elo.filter((player) => player.situacao !== "oficial");
-
-  const porPontuacao = [...people].sort(
-    (a, b) =>
-      b.pontuacao - a.pontuacao ||
-      b.vitorias - a.vitorias ||
-      b.jogos - a.jogos ||
-      a.name.localeCompare(b.name, "pt-BR"),
-  );
+  const oficiais = elo.filter((player) => player.situacao === "oficial");
+  const foraDoRanking = elo.filter((player) => player.situacao !== "oficial");
+  const podio = oficiais.slice(0, 3);
+  const lider = oficiais[0];
 
   return (
-    <div className="space-y-8">
-      <section>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Rankings</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Calculados automaticamente a cada partida registrada.
-        </p>
-      </section>
-
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        <StatCard label="Partidas" value={totals.partidas} />
-        <StatCard label="Jogadores" value={totals.pessoas} />
-        <StatCard label="Duplas" value={totals.duplas} hint="combinações que já jogaram juntas" />
-        <StatCard
-          label="Maior placar"
-          value={totals.maiorPlacar ? `${totals.maiorPlacar.pontos} pts` : "—"}
-          hint={totals.maiorPlacar?.descricao}
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-3xl bg-[#0c231b] px-6 py-9 text-[#f7f2e4] ring-1 ring-[#c9922f]/25 sm:px-10 sm:py-12">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-30"
+          aria-hidden
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 88% 12%, rgba(201,146,47,0.55), transparent 34%), radial-gradient(circle at 78% 82%, rgba(15,91,67,0.75), transparent 40%), radial-gradient(rgba(247,242,228,0.16) 1px, transparent 1px)",
+            backgroundSize: "auto, auto, 26px 26px",
+          }}
         />
+        <div className="relative">
+          <p className="eyebrow text-[#d9b872]">Liga do Dominó</p>
+          <h1 className="font-display mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+            Ranking Elo
+          </h1>
+          <p className="mt-3 max-w-xl text-sm text-[#cfcdbb] sm:text-base">
+            A classificação individual da liga: cada partida em dupla move a sua nota de acordo com a
+            força dos adversários.
+          </p>
+
+          <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Chip label="Partidas" value={totals.partidas} />
+            <Chip label="Jogadores" value={totals.pessoas} />
+            <Chip label="Duplas" value={totals.duplas} />
+            <Chip label="Líder" value={lider ? lider.name : "—"} />
+          </div>
+        </div>
       </section>
 
       {totals.partidas === 0 ? (
-        <EmptyState
-          title="Nenhuma partida registrada ainda"
-          description="Assim que a primeira partida for cadastrada, os rankings aparecem aqui automaticamente."
-        />
+        <div className="card px-6 py-14 text-center">
+          <p className="font-display text-lg font-semibold text-[#16322a]">A liga ainda não começou</p>
+          <p className="mt-1 text-sm text-[#6b7a6d]">
+            Assim que a primeira partida for registrada, o ranking Elo aparece aqui.
+          </p>
+        </div>
+      ) : null}
+
+      {podio.length > 0 ? (
+        <section className="grid gap-3 sm:grid-cols-3">
+          {podio.map((player, index) => (
+            <PodiumCard key={player.id} player={player} index={index} />
+          ))}
+        </section>
       ) : null}
 
       <section className="card overflow-hidden">
-        <div className="border-b border-slate-200 px-4 py-3">
-          <h2 className="font-semibold text-slate-900">Ranking geral</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eee7d6] px-5 py-4">
+          <h2 className="font-display text-lg font-semibold tracking-tight text-[#10231c]">
+            Classificação
+          </h2>
+          <span className="rounded-full bg-[#0f5b43]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#0c5641] ring-1 ring-[#0f5b43]/15">
+            {oficiais.length} classificado(s)
+          </span>
         </div>
 
-        {people.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-slate-500">Nenhuma pessoa cadastrada.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[520px]">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="th w-12">#</th>
-                  <th className="th">Jogador</th>
-                  <th className="th text-center">J</th>
-                  <th className="th text-center">V</th>
-                  <th className="th text-center">V. buchuda</th>
-                  <th className="th text-center">Pontuação</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {porPontuacao.map((person, index) => (
-                  <tr key={person.id} className="transition hover:bg-slate-50/70">
-                    <td className="td">
-                      <RankBadge position={index + 1} />
-                    </td>
-                    <td className="td font-medium text-slate-900">
-                      <Link href={`/pessoas/${person.id}`} className="hover:text-emerald-700 hover:underline">
-                        {person.name}
-                      </Link>
-                    </td>
-                    <td className="td text-center tabular-nums">{person.jogos}</td>
-                    <td className="td text-center tabular-nums">{person.vitorias}</td>
-                    <td className="td text-center tabular-nums">{person.vitoriasBuchuda}</td>
-                    <td className="td text-center font-semibold tabular-nums text-emerald-700">
-                      {person.pontuacao.toFixed(1)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <section className="card overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
-          <div>
-            <h2 className="font-semibold text-slate-900">Ranking de pessoas</h2>
-            <p className="text-xs text-slate-500">Ordenado por partidas ganhas</p>
-          </div>
-          <Link href="/pessoas" className="text-xs font-semibold text-emerald-700 hover:underline">
-            Ver estatísticas completas
-          </Link>
-        </div>
-
-        {people.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-slate-500">Nenhuma pessoa cadastrada.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[520px]">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="th w-12">#</th>
-                  <th className="th">Jogador</th>
-                  <th className="th text-center">J</th>
-                  <th className="th text-center">V</th>
-                  <th className="th text-center">D</th>
-                  <th className="th text-center">Buchudas</th>
-                  <th className="th text-center">% V</th>
-                  <th className="th text-center">Saldo</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {people.map((person, index) => (
-                  <tr key={person.id} className="transition hover:bg-slate-50/70">
-                    <td className="td">
-                      <RankBadge position={index + 1} />
-                    </td>
-                    <td className="td font-medium text-slate-900">
-                      <Link href={`/pessoas/${person.id}`} className="hover:text-emerald-700 hover:underline">
-                        {person.name}
-                      </Link>
-                    </td>
-                    <td className="td text-center tabular-nums">{person.jogos}</td>
-                    <td className="td text-center font-semibold tabular-nums text-emerald-700">{person.vitorias}</td>
-                    <td className="td text-center tabular-nums">{person.derrotas}</td>
-                    <td className="td text-center tabular-nums">{person.buchudas}</td>
-                    <td className="td text-center tabular-nums">{formatPercent(person.aproveitamento)}</td>
-                    <td className="td text-center tabular-nums">{person.saldo > 0 ? `+${person.saldo}` : person.saldo}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <section className="card overflow-hidden">
-        <div className="border-b border-slate-200 px-4 py-3">
-          <h2 className="font-semibold text-slate-900">Ranking Elo individual</h2>
-          <p className="text-xs text-slate-500">
-            Individual, mesmo com partidas em duplas — mínimo de 10 partidas para a posição oficial.
+        {oficiais.length === 0 ? (
+          <p className="px-5 py-10 text-center text-sm text-[#6b7a6d]">
+            Nenhum jogador alcançou 10 partidas ainda.
           </p>
-        </div>
-
-        {elo.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-slate-500">Nenhuma pessoa cadastrada.</p>
         ) : (
-          <div className="divide-y divide-slate-200">
-            <div>
-              {eloOficiais.length === 0 ? (
-                <p className="px-4 py-8 text-center text-sm text-slate-500">
-                  Nenhum jogador alcançou 10 partidas ainda, então o ranking oficial está vazio.
-                </p>
-              ) : (
-                <EloTable players={eloOficiais} />
-              )}
-            </div>
-
-            {eloForaDoRanking.length > 0 ? (
-              <div>
-                <div className="bg-slate-50/60 px-4 py-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Provisórios e não classificados
-                  </h3>
-                  <p className="text-xs text-slate-400">5 a 9 partidas: provisório. Até 4: não classificado.</p>
-                </div>
-                <EloTable players={eloForaDoRanking} />
-              </div>
-            ) : null}
-          </div>
+          <EloTable players={oficiais} />
         )}
-
-        <p className="border-t border-slate-200 px-4 py-3 text-xs text-slate-400">
-          Elo inicial 1000, K = 32. A força da dupla é a média do Elo dos dois jogadores; cada um
-          recebe a mesma variação. Buchuda (uma dupla zerada) dá +4 ao vencedor e −4 ao perdedor,
-          sem valer vitória extra. Vitórias, aproveitamento e confronto direto desempatam.
-        </p>
       </section>
 
+      {foraDoRanking.length > 0 ? (
+        <section className="card overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eee7d6] px-5 py-4">
+            <h2 className="font-display text-lg font-semibold tracking-tight text-[#10231c]">
+              Em busca de classificação
+            </h2>
+            <span className="rounded-full bg-[#c9922f]/15 px-2.5 py-0.5 text-[11px] font-semibold text-[#8a6216] ring-1 ring-[#c9922f]/30">
+              {foraDoRanking.length} jogador(es)
+            </span>
+          </div>
+          <EloTable players={foraDoRanking} />
+        </section>
+      ) : null}
+
       <section className="card overflow-hidden">
-        <div className="border-b border-slate-200 px-4 py-3">
-          <h2 className="font-semibold text-slate-900">Ranking de duplas</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#eee7d6] px-5 py-4">
+          <h2 className="font-display text-lg font-semibold tracking-tight text-[#10231c]">
+            Ranking de duplas
+          </h2>
+          <span className="rounded-full bg-[#c9922f]/15 px-2.5 py-0.5 text-[11px] font-semibold text-[#8a6216] ring-1 ring-[#c9922f]/30">
+            {duos.length} dupla(s)
+          </span>
         </div>
 
         {duos.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-slate-500">Nenhuma dupla formada ainda.</p>
+          <p className="px-5 py-10 text-center text-sm text-[#6b7a6d]">Nenhuma dupla formada ainda.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[520px]">
-              <thead className="bg-slate-50">
+            <table className="w-full min-w-[620px]">
+              <thead className="thead">
                 <tr>
-                  <th className="th w-12">#</th>
+                  <th className="th w-14">#</th>
                   <th className="th">Dupla</th>
                   <th className="th text-center">J</th>
                   <th className="th text-center">V</th>
@@ -275,19 +278,23 @@ export default async function RankingPage() {
                   <th className="th text-center">Saldo</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#eee7d6]">
                 {duos.map((duo, index) => (
-                  <tr key={duo.key} className="transition hover:bg-slate-50/70">
+                  <tr key={duo.key} className="transition hover:bg-[#f7f2e4]">
                     <td className="td">
                       <RankBadge position={index + 1} />
                     </td>
-                    <td className="td font-medium text-slate-900">{duo.nome}</td>
+                    <td className="td font-medium whitespace-nowrap text-[#10231c]">{duo.nome}</td>
                     <td className="td text-center tabular-nums">{duo.jogos}</td>
-                    <td className="td text-center font-semibold tabular-nums text-emerald-700">{duo.vitorias}</td>
+                    <td className="td text-center font-semibold tabular-nums text-[#0f5b43]">
+                      {duo.vitorias}
+                    </td>
                     <td className="td text-center tabular-nums">{duo.derrotas}</td>
                     <td className="td text-center tabular-nums">{duo.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(duo.aproveitamento)}</td>
-                    <td className="td text-center tabular-nums">{duo.saldo > 0 ? `+${duo.saldo}` : duo.saldo}</td>
+                    <td className="td text-center tabular-nums">
+                      {duo.saldo > 0 ? `+${duo.saldo}` : duo.saldo}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -296,13 +303,17 @@ export default async function RankingPage() {
         )}
       </section>
 
-      {totals.partidas > 0 ? (
-        <p className="text-xs text-slate-400">
-          Desempate: vitórias, aproveitamento, partidas jogadas e saldo de pontos. Não há empate: toda
-          partida tem vencedor. Buchuda é a derrota de 6 a 0 ou mais. Média de{" "}
-          {totals.mediaPontosPorPartida.toFixed(1)} ponto(s) por dupla em cada partida.
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e7dfc9] bg-[#fffdf7]/70 px-5 py-4">
+        <p className="text-sm text-[#6b7a6d]">
+          Procurando a pontuação por vitórias e o ranking de pessoas?
         </p>
-      ) : null}
+        <Link
+          href="/rankings-antigos"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0f5b43] hover:underline"
+        >
+          Ver rankings antigos <span aria-hidden>→</span>
+        </Link>
+      </div>
     </div>
   );
 }
