@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { ConfirmButton } from "@/components/confirm-button";
+import { SubmitButton } from "@/components/submit-button";
 import { EmptyState } from "@/components/ui";
 import { formatDateTime, nowForDateTimeInput } from "@/lib/format";
 import { listAdmins } from "@/lib/admin";
@@ -86,6 +88,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
         {canCreateMatch ? (
           <form action={createMatchAction} className="space-y-4">
+            <input type="hidden" name="requestId" value={randomUUID()} />
             <div className="grid gap-4 sm:grid-cols-2">
               <fieldset className="rounded-xl border border-[#eee7d6] p-3">
                 <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-[#0f5b43]">
@@ -188,9 +191,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   required
                 />
               </div>
-              <button type="submit" className="btn-primary">
-                Registrar partida
-              </button>
+              <SubmitButton pendingLabel="Registrando...">Registrar partida</SubmitButton>
             </div>
           </form>
         ) : (
@@ -221,9 +222,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               maxLength={60}
             />
           </div>
-          <button type="submit" className="btn-primary">
-            Adicionar pessoa
-          </button>
+          <SubmitButton pendingLabel="Adicionando...">Adicionar pessoa</SubmitButton>
         </form>
 
         {people.length === 0 ? (
@@ -318,9 +317,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               autoComplete="new-password"
             />
           </div>
-          <button type="submit" className="btn-primary">
-            Criar conta
-          </button>
+          <SubmitButton pendingLabel="Criando...">Criar conta</SubmitButton>
         </form>
 
         <ul className="divide-y divide-[#eee7d6]">
@@ -374,9 +371,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               autoComplete="new-password"
             />
           </div>
-          <button type="submit" className="btn-ghost">
+          <SubmitButton className="btn-ghost" pendingLabel="Trocando...">
             Trocar senha
-          </button>
+          </SubmitButton>
         </form>
       </section>
     </div>

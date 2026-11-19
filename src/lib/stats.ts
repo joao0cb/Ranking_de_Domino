@@ -23,8 +23,6 @@ export type PersonStats = {
   aproveitamento: number;
   pontuacao: number;
   pontosFeitos: number;
-  pontosSofridos: number;
-  saldo: number;
   mediaPontos: number;
   ultimaPartida: string | null;
   sequencia: number;
@@ -66,8 +64,6 @@ export type DuoStats = {
   buchudas: number;
   aproveitamento: number;
   pontosFeitos: number;
-  pontosSofridos: number;
-  saldo: number;
   ultimaPartida: string | null;
 };
 
@@ -361,8 +357,6 @@ export function buildStats(allMatches: Match[]): Stats {
         aproveitamento: 0,
         pontuacao: 0,
         pontosFeitos: 0,
-        pontosSofridos: 0,
-        saldo: 0,
         mediaPontos: 0,
         ultimaPartida: null,
         sequencia: 0,
@@ -412,7 +406,6 @@ export function buildStats(allMatches: Match[]): Stats {
         const acc = personAcc(member);
         acc.jogos += 1;
         acc.pontosFeitos += team.score;
-        acc.pontosSofridos += team.conceded;
         acc.results.push(team.result);
         if (team.result === "V") acc.vitorias += 1;
         else acc.derrotas += 1;
@@ -438,15 +431,12 @@ export function buildStats(allMatches: Match[]): Stats {
           buchudas: 0,
           aproveitamento: 0,
           pontosFeitos: 0,
-          pontosSofridos: 0,
-          saldo: 0,
           ultimaPartida: null,
         };
         duoMap.set(key, duo);
       }
       duo.jogos += 1;
       duo.pontosFeitos += team.score;
-      duo.pontosSofridos += team.conceded;
       if (team.result === "V") duo.vitorias += 1;
       else duo.derrotas += 1;
       if (buchuda) duo.buchudas += 1;
@@ -459,7 +449,6 @@ export function buildStats(allMatches: Match[]): Stats {
   const people: PersonStats[] = [...peopleMap.values()].map((acc) => {
     acc.aproveitamento = acc.jogos > 0 ? (acc.vitorias / acc.jogos) * 100 : 0;
     acc.pontuacao = pontuacaoGeral(acc.vitoriasBuchuda, acc.vitorias, acc.jogos);
-    acc.saldo = acc.pontosFeitos - acc.pontosSofridos;
     acc.mediaPontos = acc.jogos > 0 ? acc.pontosFeitos / acc.jogos : 0;
 
     let sequencia = 0;
@@ -481,7 +470,6 @@ export function buildStats(allMatches: Match[]): Stats {
   const duos: DuoStats[] = [...duoMap.values()].map((duo) => ({
     ...duo,
     aproveitamento: duo.jogos > 0 ? (duo.vitorias / duo.jogos) * 100 : 0,
-    saldo: duo.pontosFeitos - duo.pontosSofridos,
   }));
 
   for (const duo of duos) {
@@ -498,7 +486,6 @@ export function buildStats(allMatches: Match[]): Stats {
       b.vitorias - a.vitorias ||
       b.aproveitamento - a.aproveitamento ||
       b.jogos - a.jogos ||
-      b.saldo - a.saldo ||
       a.name.localeCompare(b.name, "pt-BR"),
   );
 
@@ -507,7 +494,6 @@ export function buildStats(allMatches: Match[]): Stats {
       b.vitorias - a.vitorias ||
       b.aproveitamento - a.aproveitamento ||
       b.jogos - a.jogos ||
-      b.saldo - a.saldo ||
       a.nome.localeCompare(b.nome, "pt-BR"),
   );
 

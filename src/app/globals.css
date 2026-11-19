@@ -28,6 +28,22 @@ body {
   background: rgba(201, 146, 47, 0.28);
 }
 
+.spinner {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spinner-rotate 0.7s linear infinite;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .overflow-x-auto {
   scrollbar-width: thin;
   scrollbar-color: rgba(16, 35, 28, 0.22) transparent;

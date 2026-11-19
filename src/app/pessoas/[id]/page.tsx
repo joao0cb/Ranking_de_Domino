@@ -59,7 +59,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
   const history = buildHistory(stats.matches, id);
   const duos = stats.duos
     .filter((duo) => duo.jogadorIds.includes(id))
-    .sort((a, b) => b.vitorias - a.vitorias || b.jogos - a.jogos || b.saldo - a.saldo);
+    .sort((a, b) => b.vitorias - a.vitorias || b.jogos - a.jogos || a.nome.localeCompare(b.nome, "pt-BR"));
 
   const numero = stats.people.findIndex((item) => item.id === id) + 1;
 
@@ -97,13 +97,6 @@ export default async function PersonPage({ params }: PersonPageProps) {
           hint="vitórias / jogos"
         />
         <StatCard
-          label="Saldo de pontos"
-          value={
-            personStats ? (personStats.saldo > 0 ? `+${personStats.saldo}` : personStats.saldo) : 0
-          }
-          hint={personStats ? `${personStats.pontosFeitos} marcados · ${personStats.pontosSofridos} sofridos` : undefined}
-        />
-        <StatCard
           label="Média por partida"
           value={(personStats?.mediaPontos ?? 0).toFixed(1)}
           hint="pontos marcados por jogo"
@@ -132,7 +125,6 @@ export default async function PersonPage({ params }: PersonPageProps) {
                   <th className="th text-center">D</th>
                   <th className="th text-center">Buchudas</th>
                   <th className="th text-center">% Vitórias</th>
-                  <th className="th text-center">Saldo</th>
                   <th className="th">Última vez</th>
                 </tr>
               </thead>
@@ -145,7 +137,6 @@ export default async function PersonPage({ params }: PersonPageProps) {
                     <td className="td text-center tabular-nums">{duo.derrotas}</td>
                     <td className="td text-center tabular-nums">{duo.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(duo.aproveitamento)}</td>
-                    <td className="td text-center tabular-nums">{duo.saldo > 0 ? `+${duo.saldo}` : duo.saldo}</td>
                     <td className="td whitespace-nowrap text-[#6b7a6d]">
                       {duo.ultimaPartida ? formatDateTime(duo.ultimaPartida) : "—"}
                     </td>

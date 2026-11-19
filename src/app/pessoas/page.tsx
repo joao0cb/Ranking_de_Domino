@@ -41,7 +41,6 @@ export default async function PeoplePage() {
                   <th className="th text-center">Buchudas</th>
                   <th className="th text-center">% Vitórias</th>
                   <th className="th text-center">Pontos</th>
-                  <th className="th text-center">Saldo</th>
                   <th className="th text-center">Média</th>
                   <th className="th text-center">Sequência</th>
                   <th className="th">Melhor dupla</th>
@@ -65,7 +64,6 @@ export default async function PeoplePage() {
                     <td className="td text-center tabular-nums">{person.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(person.aproveitamento)}</td>
                     <td className="td text-center tabular-nums">{person.pontosFeitos}</td>
-                    <td className="td text-center tabular-nums">{person.saldo > 0 ? `+${person.saldo}` : person.saldo}</td>
                     <td className="td text-center tabular-nums">{person.mediaPontos.toFixed(1)}</td>
                     <td className="td text-center">
                       {person.sequencia === 0 ? (

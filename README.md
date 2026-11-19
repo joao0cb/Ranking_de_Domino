@@ -3,7 +3,7 @@
 Placar e ranking de partidas de dominó, com interface pública de leitura e painel administrativo
 escondido para cadastrar pessoas, partidas e contas.
 
-- **Ranking de pessoas**: partidas jogadas, vitórias, derrotas, buchudas, % de vitórias, saldo e média de pontos, sequência atual, melhor dupla e última partida.
+- **Ranking de pessoas**: partidas jogadas, vitórias, derrotas, buchudas, pontos marcados, % de vitórias, média de pontos, sequência atual, melhor dupla e última partida.
 - **Buchuda**: derrota por 6 a 0 ou mais (a dupla perdedora zerou e levou pelo menos 6 pontos).
 - **Ranking de duplas**: cada combinação de dois jogadores (a dupla não é fixa — a mesma pessoa pode jogar com parceiros diferentes, e os números são recalculados a partir das partidas).
 - **Partidas**: lista das partidas com placar, com filtro por jogador.
@@ -78,7 +78,7 @@ a própria) e trocar a própria senha. O site público continua somente leitura 
 - Partida: duas duplas (2 pessoas em cada), placar das duas duplas e data/hora. Não existe empate:
   os placares precisam ser diferentes (partidas empatadas são recusadas no cadastro).
 - Dupla: não é uma entidade fixa, é derivada das partidas — cada combinação de dois jogadores que já
-  jogou junto aparece no ranking de duplas, com vitórias, derrotas, buchudas, % e saldo.
+  jogou junto aparece no ranking de duplas, com vitórias, derrotas, buchudas e %.
 - Excluir uma pessoa que já tem partidas é bloqueado com uma mensagem; exclua as partidas antes
   (a exclusão de uma partida remove apenas os vínculos daquela partida).
 

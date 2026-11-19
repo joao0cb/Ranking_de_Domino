@@ -84,30 +84,42 @@ export async function createMatchAction(formData: FormData): Promise<void> {
   const playedAt = normalizeDateTimeInput(text(formData, "playedAt")) ?? null;
   if (!playedAt) fail("Informe uma data e hora válidas.");
 
+  // Token gerado a cada renderização do formulário: um segundo envio do mesmo
+  // formulário não cria outra partida.
+  const requestIdInput = text(formData, "requestId");
+  const requestId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestIdInput)
+    ? requestIdInput
+    : null;
+
   const people = await query<{ id: string }>("select id from people where id = any($1::uuid[])", [ids]);
   if (people.length !== 4) fail("Algum dos jogadores selecionados não existe mais. Recarregue a página.");
 
-  await withTransaction(async (client) => {
-    const inserted = await client.query<{ id: string }>(
-      "insert into matches (played_at, team_a_score, team_b_score) values ($1, $2, $3) returning id",
-      [playedAt, scoreA, scoreB],
-    );
-    const matchId = inserted.rows[0].id;
-    const values = [
-      [matchId, ids[0], "A"],
-      [matchId, ids[1], "A"],
-      [matchId, ids[2], "B"],
-      [matchId, ids[3], "B"],
-    ];
+  try {
+    await withTransaction(async (client) => {
+      const inserted = await client.query<{ id: string }>(
+        "insert into matches (played_at, team_a_score, team_b_score, request_id) values ($1, $2, $3, $4) returning id",
+        [playedAt, scoreA, scoreB, requestId],
+      );
+      const matchId = inserted.rows[0].id;
+      const values = [
+        [matchId, ids[0], "A"],
+        [matchId, ids[1], "A"],
+        [matchId, ids[2], "B"],
+        [matchId, ids[3], "B"],
+      ];
 
-    for (const [match, person, team] of values) {
-      await client.query("insert into match_players (match_id, person_id, team) values ($1, $2, $3)", [
-        match,
-        person,
-        team,
-      ]);
-    }
-  });
+      for (const [match, person, team] of values) {
+        await client.query("insert into match_players (match_id, person_id, team) values ($1, $2, $3)", [
+          match,
+          person,
+          team,
+        ]);
+      }
+    });
+  } catch (error) {
+    if (requestId && isUniqueViolation(error)) done("Essa partida já havia sido registrada.");
+    throw error;
+  }
 
   done(`Partida registrada: ${scoreA} × ${scoreB}.`);
 }

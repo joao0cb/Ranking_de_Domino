@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SubmitButton } from "@/components/submit-button";
 import { claimFirstAccountAction } from "../actions";
 import { countAdmins } from "@/lib/admin";
 import { getSession } from "@/lib/session";
@@ -77,9 +78,9 @@ export default async function FirstAccessPage({ searchParams }: FirstAccessPageP
               minLength={8}
             />
           </div>
-          <button type="submit" className="btn-primary w-full">
+          <SubmitButton className="btn-primary w-full" pendingLabel="Criando...">
             Criar conta e entrar
-          </button>
+          </SubmitButton>
         </form>
       )}
 

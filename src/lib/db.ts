@@ -23,6 +23,13 @@ const SCHEMA_SQL = `
     created_at timestamptz not null default now()
   );
 
+  -- Identificador único por envio do formulário: impede que cliques repetidos
+  -- (ou um reenvio da mesma requisição) cadastrem a mesma partida duas vezes.
+  alter table matches add column if not exists request_id uuid;
+
+  create unique index if not exists matches_request_id_key on matches (request_id)
+    where request_id is not null;
+
   create table if not exists match_players (
     match_id uuid not null references matches (id) on delete cascade,
     person_id uuid not null references people (id) on delete restrict,

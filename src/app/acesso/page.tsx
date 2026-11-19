@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SubmitButton } from "@/components/submit-button";
 import { loginAction } from "./actions";
 import { countAdmins } from "@/lib/admin";
 import { getSession } from "@/lib/session";
@@ -54,9 +55,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             required
           />
         </div>
-        <button type="submit" className="btn-primary w-full">
+        <SubmitButton className="btn-primary w-full" pendingLabel="Entrando...">
           Entrar
-        </button>
+        </SubmitButton>
       </form>
 
       {admins === 0 ? (

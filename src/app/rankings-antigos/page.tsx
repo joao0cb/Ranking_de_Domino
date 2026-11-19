@@ -117,7 +117,6 @@ export default async function OldRankingsPage() {
                   <th className="th text-center">D</th>
                   <th className="th text-center">Buchudas</th>
                   <th className="th text-center">% V</th>
-                  <th className="th text-center">Saldo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#eee7d6]">
@@ -138,9 +137,6 @@ export default async function OldRankingsPage() {
                     <td className="td text-center tabular-nums">{person.derrotas}</td>
                     <td className="td text-center tabular-nums">{person.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(person.aproveitamento)}</td>
-                    <td className="td text-center tabular-nums">
-                      {person.saldo > 0 ? `+${person.saldo}` : person.saldo}
-                    </td>
                   </tr>
                 ))}
               </tbody>

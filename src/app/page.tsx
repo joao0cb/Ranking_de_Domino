@@ -275,7 +275,6 @@ export default async function EloRankingPage() {
                   <th className="th text-center">D</th>
                   <th className="th text-center">Buchudas</th>
                   <th className="th text-center">% V</th>
-                  <th className="th text-center">Saldo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#eee7d6]">
@@ -292,9 +291,6 @@ export default async function EloRankingPage() {
                     <td className="td text-center tabular-nums">{duo.derrotas}</td>
                     <td className="td text-center tabular-nums">{duo.buchudas}</td>
                     <td className="td text-center tabular-nums">{formatPercent(duo.aproveitamento)}</td>
-                    <td className="td text-center tabular-nums">
-                      {duo.saldo > 0 ? `+${duo.saldo}` : duo.saldo}
-                    </td>
                   </tr>
                 ))}
               </tbody>
