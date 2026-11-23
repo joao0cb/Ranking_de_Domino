@@ -164,25 +164,31 @@ export function eloSituacao(jogos: number): EloSituacao {
   return "nao-classificado";
 }
 
-/**
- * Ranking Elo individual. Recalcula o histórico cronológico do zero: cada
- * partida usa o Elo dos quatro participantes antes dela, e o incremento é
- * aplicado só depois de calcular as duas duplas. Assim, editar ou excluir uma
- * partida antiga reconstrói automaticamente todas as pontuações seguintes.
- */
-export function buildEloRanking(allMatches: Match[]): EloPlayer[] {
-  type EloAcc = {
-    id: string;
-    name: string;
-    elo: number;
-    jogos: number;
-    vitorias: number;
-    derrotas: number;
-    buchudasFeitas: number;
-    buchudasSofridas: number;
-    confrontos: Map<string, number>;
-  };
+type EloAcc = {
+  id: string;
+  name: string;
+  elo: number;
+  jogos: number;
+  vitorias: number;
+  derrotas: number;
+  buchudasFeitas: number;
+  buchudasSofridas: number;
+  confrontos: Map<string, number>;
+};
 
+/** Variação de Elo aplicada a cada dupla em uma partida. */
+export type MatchEloDelta = { a: number; b: number };
+
+/**
+ * Recalcula o histórico cronológico do zero: cada partida usa o Elo dos quatro
+ * participantes antes dela, e o incremento é aplicado só depois de calcular as
+ * duas duplas. Assim, editar ou excluir uma partida antiga reconstrói
+ * automaticamente todas as pontuações seguintes.
+ */
+function accumulateElo(
+  allMatches: Match[],
+  onMatch?: (match: Match, delta: MatchEloDelta) => void,
+): Map<string, EloAcc> {
   const accs = new Map<string, EloAcc>();
 
   const accOf = (player: MatchPlayer): EloAcc => {
@@ -225,6 +231,8 @@ export function buildEloRanking(allMatches: Match[]): EloPlayer[] {
     const variacaoA = ELO_K * ((venceuA ? 1 : 0) - esperadoA) + (buchuda ? (venceuA ? ELO_BONUS_BUCHUDA : -ELO_BONUS_BUCHUDA) : 0);
     const variacaoB = ELO_K * ((venceuA ? 0 : 1) - esperadoB) + (buchuda ? (venceuA ? -ELO_BONUS_BUCHUDA : ELO_BONUS_BUCHUDA) : 0);
 
+    onMatch?.(match, { a: variacaoA, b: variacaoB });
+
     const vencedores = venceuA ? teamA : teamB;
     const perdedores = venceuA ? teamB : teamA;
 
@@ -256,6 +264,20 @@ export function buildEloRanking(allMatches: Match[]): EloPlayer[] {
       }
     }
   }
+
+  return accs;
+}
+
+/** Variação de Elo de cada dupla por partida, para exibir no histórico. */
+export function buildEloDeltas(allMatches: Match[]): Map<string, MatchEloDelta> {
+  const deltas = new Map<string, MatchEloDelta>();
+  accumulateElo(allMatches, (match, delta) => deltas.set(match.id, delta));
+  return deltas;
+}
+
+/** Ranking Elo individual. */
+export function buildEloRanking(allMatches: Match[]): EloPlayer[] {
+  const accs = accumulateElo(allMatches);
 
   const people: EloPlayer[] = [...accs.values()].map((acc) => ({
     id: acc.id,

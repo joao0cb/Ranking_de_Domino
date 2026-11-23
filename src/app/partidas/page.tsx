@@ -1,10 +1,25 @@
 import { EmptyState } from "@/components/ui";
 import { formatDateTime } from "@/lib/format";
-import { isBuchuda, loadMatches, loadPeople } from "@/lib/stats";
+import { buildEloDeltas, isBuchuda, loadMatches, loadPeople } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
 type MatchesPageProps = { searchParams: Promise<{ pessoa?: string }> };
+
+function EloDelta({ value, align }: { value: number; align: "left" | "right" }) {
+  const arredondado = Math.round(value);
+  return (
+    <p
+      className={`mt-1 text-xs tabular-nums text-[#6b7a6d] ${align === "right" ? "sm:text-right" : ""}`}
+    >
+      Elo{" "}
+      <span className={`font-semibold ${arredondado >= 0 ? "text-[#0c5641]" : "text-[#9c3f2c]"}`}>
+        {arredondado >= 0 ? "+" : "−"}
+        {Math.abs(arredondado)}
+      </span>
+    </p>
+  );
+}
 
 export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const [{ pessoa }, allMatches, people] = await Promise.all([searchParams, loadMatches(), loadPeople()]);
@@ -14,6 +29,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const filtered = pessoa
     ? matches.filter((match) => [...match.teamA, ...match.teamB].some((player) => player.id === pessoa))
     : matches;
+  const eloDeltas = buildEloDeltas(allMatches);
   const selectedPerson = pessoa ? people.find((person) => person.id === pessoa) : undefined;
 
   return (
@@ -67,6 +83,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
             const bWon = !aWon;
             const aBuchuda = isBuchuda(match.scoreA, match.scoreB);
             const bBuchuda = isBuchuda(match.scoreB, match.scoreA);
+            const delta = eloDeltas.get(match.id);
 
             return (
               <article key={match.id} className="card px-4 py-4">
@@ -84,16 +101,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                       {match.teamA.map((player) => player.name).join(" & ")}
                     </p>
                     <p className="text-xs text-[#6b7a6d]">{aWon ? "Vitória" : "Derrota"}</p>
-                    <dl className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs tabular-nums">
-                      <div className="flex items-baseline gap-1">
-                        <dt className="text-[#6b7a6d]">Ganhou</dt>
-                        <dd className="font-semibold text-[#0c5641]">{match.scoreA}</dd>
-                      </div>
-                      <div className="flex items-baseline gap-1">
-                        <dt className="text-[#6b7a6d]">Perdeu</dt>
-                        <dd className="font-semibold text-[#9c3f2c]">{match.scoreB}</dd>
-                      </div>
-                    </dl>
+                    {delta ? <EloDelta value={delta.a} align="left" /> : null}
                   </div>
 
                   <div className="flex items-center justify-center gap-2 text-xl font-bold tabular-nums text-[#10231c]">
@@ -111,16 +119,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                       {match.teamB.map((player) => player.name).join(" & ")}
                     </p>
                     <p className="text-xs text-[#6b7a6d]">{bWon ? "Vitória" : "Derrota"}</p>
-                    <dl className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs tabular-nums sm:justify-end">
-                      <div className="flex items-baseline gap-1">
-                        <dt className="text-[#6b7a6d]">Ganhou</dt>
-                        <dd className="font-semibold text-[#0c5641]">{match.scoreB}</dd>
-                      </div>
-                      <div className="flex items-baseline gap-1">
-                        <dt className="text-[#6b7a6d]">Perdeu</dt>
-                        <dd className="font-semibold text-[#9c3f2c]">{match.scoreA}</dd>
-                      </div>
-                    </dl>
+                    {delta ? <EloDelta value={delta.b} align="right" /> : null}
                   </div>
                 </div>
               </article>
