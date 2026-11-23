@@ -84,6 +84,16 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                       {match.teamA.map((player) => player.name).join(" & ")}
                     </p>
                     <p className="text-xs text-[#6b7a6d]">{aWon ? "Vitória" : "Derrota"}</p>
+                    <dl className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs tabular-nums">
+                      <div className="flex items-baseline gap-1">
+                        <dt className="text-[#6b7a6d]">Ganhou</dt>
+                        <dd className="font-semibold text-[#0c5641]">{match.scoreA}</dd>
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <dt className="text-[#6b7a6d]">Perdeu</dt>
+                        <dd className="font-semibold text-[#9c3f2c]">{match.scoreB}</dd>
+                      </div>
+                    </dl>
                   </div>
 
                   <div className="flex items-center justify-center gap-2 text-xl font-bold tabular-nums text-[#10231c]">
@@ -101,6 +111,16 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                       {match.teamB.map((player) => player.name).join(" & ")}
                     </p>
                     <p className="text-xs text-[#6b7a6d]">{bWon ? "Vitória" : "Derrota"}</p>
+                    <dl className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs tabular-nums sm:justify-end">
+                      <div className="flex items-baseline gap-1">
+                        <dt className="text-[#6b7a6d]">Ganhou</dt>
+                        <dd className="font-semibold text-[#0c5641]">{match.scoreB}</dd>
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <dt className="text-[#6b7a6d]">Perdeu</dt>
+                        <dd className="font-semibold text-[#9c3f2c]">{match.scoreA}</dd>
+                      </div>
+                    </dl>
                   </div>
                 </div>
               </article>
